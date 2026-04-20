@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Admin · Collibra</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    (function(){
+      try {
+        var raw = localStorage.getItem('collibra-dashboard-config');
+        var cfg = raw ? JSON.parse(raw) : null;
+        var theme = cfg && cfg.theme ? cfg.theme : 'system';
+        if (theme === 'system') {
+          var prefers = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          theme = prefers ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch(e) {}
+    })();
+  </script>
+</head>
+<body>
+  <div class="app">
+
+    <!-- Top bar -->
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand__mark">Dashboard.</span>
+        <span class="brand__title">Admin Portal</span>
+        <span class="brand__eyebrow">Config</span>
+      </div>
+      <div class="topbar__actions">
+        <div class="theme-toggle" role="group" aria-label="Theme">
+          <button id="theme-light" aria-pressed="false" title="Light">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          </button>
+          <button id="theme-system" aria-pressed="false" title="System">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+          </button>
+          <button id="theme-dark" aria-pressed="false" title="Dark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+        </div>
+        <a href="dashboards.html" class="btn btn--sm">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          <span class="btn__label-hide-sm">Back to dashboard</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="admin-hero container">
+      <h1 class="admin-hero__title">Curate <em>every</em> widget.</h1>
+      <p class="admin-hero__sub">Add, reorder and resize the HTML widgets rendered on your dashboard. Every change is stored locally in this browser and applied the next time the dashboard is opened.</p>
+    </section>
+
+    <!-- Layout -->
+    <div class="admin-layout container">
+
+      <!-- Main column: widget list -->
+      <div>
+        <section class="section">
+          <div class="section__head">
+            <div>
+              <h2 class="section__title">Widgets</h2>
+              <p class="section__desc">Drag the handles to reorder. Each widget loads a custom HTML file from your Collibra <code>/resources/images/</code> folder inside an iframe.</p>
+            </div>
+            <button class="btn btn--accent" id="btn-add">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add widget
+            </button>
+          </div>
+          <div class="widget-list" id="widget-list"></div>
+        </section>
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="admin-side">
+
+        <!-- Grid settings -->
+        <div class="panel">
+          <div class="panel__head"><div class="panel__title">Grid</div></div>
+          <div class="panel__body">
+            <div class="field">
+              <label class="field__label" for="set-cols">Columns</label>
+              <div class="range-group">
+                <input type="range" id="set-cols" min="4" max="12" step="1" />
+                <span class="range-group__value" id="set-cols-val">12</span>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field__label" for="set-row">Row height</label>
+              <div class="range-group">
+                <input type="range" id="set-row" min="120" max="320" step="10" />
+                <span class="range-group__value" id="set-row-val">180px</span>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field__label" for="set-gap">Gap</label>
+              <div class="range-group">
+                <input type="range" id="set-gap" min="8" max="40" step="2" />
+                <span class="range-group__value" id="set-gap-val">20px</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Base URL -->
+        <div class="panel">
+          <div class="panel__head"><div class="panel__title">Base URL</div></div>
+          <div class="panel__body">
+            <div class="field">
+              <input type="text" id="set-base" class="input input--mono" placeholder="(auto)" />
+              <span class="field__hint">Leave blank to use this browser's origin. Override only if widgets are hosted elsewhere.</span>
+            </div>
+            <div class="field">
+              <span class="field__label">Resolved</span>
+              <div class="url-preview" id="base-preview"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Import / export -->
+        <div class="panel">
+          <div class="panel__head"><div class="panel__title">Configuration</div></div>
+          <div class="panel__body">
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn--sm" id="btn-export">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export
+              </button>
+              <button class="btn btn--sm" id="btn-import">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Import
+              </button>
+              <button class="btn btn--sm btn--danger" id="btn-reset">Reset</button>
+            </div>
+            <span class="field__hint">Config is saved to this browser's localStorage. Export to share with other users.</span>
+          </div>
+        </div>
+
+      </aside>
+    </div>
+
+    <!-- Widget modal -->
+    <div class="modal-backdrop" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal">
+        <div class="modal__header">
+          <h3 class="modal__title" id="modal-title">Add <em>widget</em></h3>
+          <button class="icon-btn" id="modal-close" aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="modal__body">
+          <div class="form-grid">
+            <div class="field field--full">
+              <label class="field__label" for="f-title">Title</label>
+              <input type="text" id="f-title" class="input" placeholder="e.g. Data Quality Trends" />
+            </div>
+            <div class="field field--full">
+              <label class="field__label" for="f-path">Path under /resources/images/</label>
+              <input type="text" id="f-path" class="input input--mono" placeholder="e.g. dq/trends.html" />
+              <span class="field__hint">Just the part after <code>/resources/images/</code>. Leading slash optional.</span>
+              <div class="url-preview" id="f-url-preview">
+                <span class="url-preview__base"></span><span class="url-preview__path"></span>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field__label" for="f-col">Width (columns)</label>
+              <div class="range-group">
+                <input type="range" id="f-col" min="1" max="12" step="1" value="6" />
+                <span class="range-group__value" id="f-col-val">6 / 12</span>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field__label" for="f-row">Height (rows)</label>
+              <div class="range-group">
+                <input type="range" id="f-row" min="1" max="6" step="1" value="2" />
+                <span class="range-group__value" id="f-row-val">2</span>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field__label">Display</label>
+              <label class="checkbox"><input type="checkbox" id="f-header" checked /> Show widget header</label>
+            </div>
+            <div class="field">
+              <label class="field__label">Status</label>
+              <label class="checkbox"><input type="checkbox" id="f-enabled" checked /> Enabled on dashboard</label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field__label">Preview</label>
+            <div style="height:220px; border:1px solid var(--border); border-radius: var(--r-md); overflow:hidden; background: var(--surface-alt);">
+              <iframe id="f-preview" style="width:100%; height:100%; border:0;" title="Preview"></iframe>
+            </div>
+            <span class="field__hint">Preview updates as you type the path.</span>
+          </div>
+        </div>
+        <div class="modal__footer">
+          <div class="modal__footer-left">
+            <button class="btn btn--sm btn--danger" id="modal-delete">Delete</button>
+          </div>
+          <div class="modal__footer-right">
+            <button class="btn" id="modal-cancel">Cancel</button>
+            <button class="btn btn--primary" id="modal-save">Save widget</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Import modal -->
+    <div class="modal-backdrop" id="import-modal" role="dialog" aria-modal="true" aria-labelledby="import-title">
+      <div class="modal">
+        <div class="modal__header">
+          <h3 class="modal__title" id="import-title">Import <em>configuration</em></h3>
+          <button class="icon-btn" id="import-close" aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="modal__body">
+          <div class="field">
+            <label class="field__label" for="import-json">Paste exported JSON</label>
+            <textarea id="import-json" class="textarea" placeholder='{"version":1,"widgets":[...]}'></textarea>
+            <span class="field__hint">This will replace your current configuration. Export first if you want to keep a backup.</span>
+          </div>
+        </div>
+        <div class="modal__footer">
+          <div class="modal__footer-right" style="margin-left:auto;">
+            <button class="btn" id="import-cancel">Cancel</button>
+            <button class="btn btn--primary" id="import-apply">Replace config</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-stack" id="toasts" aria-live="polite"></div>
+  </div>
+
+<script>
+/* ============================================================
+   Admin script
+   ============================================================ */
+(function(){
+  'use strict';
+
+  var STORAGE_KEY = 'collibra-dashboard-config';
+  var DEFAULT_CONFIG = {
+    version: 1,
+    theme: 'system',
+    baseUrl: '',
+    gridColumns: 12,
+    rowHeight: 180,
+    gap: 20,
+    widgets: []
+  };
+
+  // --- State ---------------------------------------------------------------
+  var cfg = loadConfig();
+  var editingId = null;   // null => add mode
+  var dragId = null;
+
+  // --- Persistence ---------------------------------------------------------
+  function loadConfig() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return clone(DEFAULT_CONFIG);
+      var parsed = JSON.parse(raw);
+      return Object.assign({}, DEFAULT_CONFIG, parsed, {
+        widgets: (parsed.widgets || []).slice()
+      });
+    } catch(e) { return clone(DEFAULT_CONFIG); }
+  }
+  function save() {
+    // Normalize widget order
+    cfg.widgets.forEach(function(w, i){ w.order = i; });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
+  }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  function uid() {
+    return 'w_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+  }
+
+  // --- Base URL ------------------------------------------------------------
+  function getBaseUrl() {
+    if (cfg.baseUrl && cfg.baseUrl.trim()) return cfg.baseUrl.replace(/\/+$/, '');
+    return window.location.origin;
+  }
+  function buildWidgetUrl(path) {
+    var clean = String(path || '').replace(/^\/+/, '');
+    return getBaseUrl() + '/resources/images/' + clean;
+  }
+
+  // --- Theme ---------------------------------------------------------------
+  function applyTheme(theme) {
+    var actual = theme;
+    if (theme === 'system') {
+      actual = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-theme', actual);
+    ['light','system','dark'].forEach(function(t){
+      var b = document.getElementById('theme-' + t);
+      if (b) b.setAttribute('aria-pressed', String(t === theme));
+    });
+  }
+  function initTheme() {
+    applyTheme(cfg.theme || 'system');
+    ['light','system','dark'].forEach(function(t){
+      var b = document.getElementById('theme-' + t);
+      if (!b) return;
+      b.addEventListener('click', function(){
+        cfg.theme = t;
+        save();
+        applyTheme(t);
+      });
+    });
+    try {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(){
+        if (cfg.theme === 'system') applyTheme('system');
+      });
+    } catch(e) {}
+  }
+
+  // --- Widget list rendering ----------------------------------------------
+  function renderList() {
+    var list = document.getElementById('widget-list');
+    list.innerHTML = '';
+
+    if (cfg.widgets.length === 0) {
+      var empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.style.gridColumn = '1 / -1';
+      empty.innerHTML =
+        '<div class="empty-state__mark">&#8205;—</div>' +
+        '<h2 class="empty-state__title">No widgets yet.</h2>' +
+        '<p class="empty-state__text">Click <strong>Add widget</strong> to pin your first custom HTML file to the dashboard.</p>';
+      list.appendChild(empty);
+      return;
+    }
+
+    cfg.widgets.forEach(function(w){
+      list.appendChild(renderRow(w));
+    });
+  }
+
+  function renderRow(w) {
+    var row = document.createElement('div');
+    row.className = 'widget-row' + (w.enabled === false ? ' is-disabled' : '');
+    row.setAttribute('data-id', w.id);
+    row.setAttribute('draggable', 'true');
+
+    row.innerHTML =
+      '<div class="widget-row__handle" title="Drag to reorder" aria-label="Drag to reorder">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>' +
+      '</div>' +
+      '<div class="widget-row__body">' +
+        '<div class="widget-row__title">' +
+          '<span>' + escapeHtml(w.title || '(untitled)') + '</span>' +
+          (w.enabled === false ? '<span class="pill pill--off">Off</span>' : '') +
+        '</div>' +
+        '<div class="widget-row__meta">' +
+          '<span class="widget-row__path" title="' + escapeAttr(w.path) + '">/resources/images/' + escapeHtml(w.path) + '</span>' +
+          '<span class="widget-row__size">' + (w.colSpan || 6) + '&times;' + (w.rowSpan || 2) + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="widget-row__actions">' +
+        '<button class="btn btn--sm btn--ghost btn--icon" data-action="preview" title="Open preview">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>' +
+        '</button>' +
+        '<button class="btn btn--sm btn--ghost btn--icon" data-action="toggle" title="' + (w.enabled === false ? 'Enable' : 'Disable') + '">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>' +
+        '</button>' +
+        '<button class="btn btn--sm btn--ghost btn--icon" data-action="edit" title="Edit">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+        '</button>' +
+        '<button class="btn btn--sm btn--ghost btn--icon" data-action="delete" title="Delete">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>' +
+        '</button>' +
+      '</div>';
+
+    // Actions
+    row.addEventListener('click', function(ev){
+      var btn = ev.target.closest('[data-action]');
+      if (!btn) return;
+      var action = btn.getAttribute('data-action');
+      if (action === 'edit') openEdit(w.id);
+      else if (action === 'delete') confirmDelete(w.id);
+      else if (action === 'toggle') toggleEnabled(w.id);
+      else if (action === 'preview') window.open(buildWidgetUrl(w.path), '_blank', 'noopener');
+    });
+
+    // Drag
+    row.addEventListener('dragstart', function(ev){
+      dragId = w.id;
+      row.classList.add('is-dragging');
+      try { ev.dataTransfer.setData('text/plain', w.id); ev.dataTransfer.effectAllowed = 'move'; } catch(e){}
+    });
+    row.addEventListener('dragend', function(){
+      row.classList.remove('is-dragging');
+      document.querySelectorAll('.widget-row.is-drop-target').forEach(function(el){ el.classList.remove('is-drop-target'); });
+      dragId = null;
+    });
+    row.addEventListener('dragover', function(ev){
+      if (!dragId || dragId === w.id) return;
+      ev.preventDefault();
+      row.classList.add('is-drop-target');
+    });
+    row.addEventListener('dragleave', function(){
+      row.classList.remove('is-drop-target');
+    });
+    row.addEventListener('drop', function(ev){
+      ev.preventDefault();
+      row.classList.remove('is-drop-target');
+      if (!dragId || dragId === w.id) return;
+      reorder(dragId, w.id);
+    });
+
+    return row;
+  }
+
+  function toggleEnabled(id) {
+    var w = cfg.widgets.find(function(x){return x.id === id;});
+    if (!w) return;
+    w.enabled = w.enabled === false ? true : false;
+    save();
+    renderList();
+    toast(w.enabled ? 'Widget enabled' : 'Widget disabled', 'success');
+  }
+
+  function reorder(sourceId, targetId) {
+    var src = cfg.widgets.findIndex(function(x){return x.id === sourceId;});
+    var tgt = cfg.widgets.findIndex(function(x){return x.id === targetId;});
+    if (src < 0 || tgt < 0) return;
+    var item = cfg.widgets.splice(src, 1)[0];
+    cfg.widgets.splice(tgt, 0, item);
+    save();
+    renderList();
+  }
+
+  // --- Modal: add / edit ---------------------------------------------------
+  function openAdd() {
+    editingId = null;
+    document.getElementById('modal-title').innerHTML = 'Add <em>widget</em>';
+    document.getElementById('modal-delete').style.display = 'none';
+    setFormValues({ title:'', path:'', colSpan:6, rowSpan:2, showHeader:true, enabled:true });
+    updateUrlPreview();
+    updatePreviewIframe();
+    openModal('modal');
+    setTimeout(function(){ document.getElementById('f-title').focus(); }, 40);
+  }
+
+  function openEdit(id) {
+    var w = cfg.widgets.find(function(x){return x.id === id;});
+    if (!w) return;
+    editingId = id;
+    document.getElementById('modal-title').innerHTML = 'Edit <em>widget</em>';
+    document.getElementById('modal-delete').style.display = '';
+    setFormValues(w);
+    updateUrlPreview();
+    updatePreviewIframe();
+    openModal('modal');
+  }
+
+  function setFormValues(w) {
+    document.getElementById('f-title').value = w.title || '';
+    document.getElementById('f-path').value = w.path || '';
+    var col = document.getElementById('f-col');
+    var row = document.getElementById('f-row');
+    col.value = w.colSpan || 6;
+    row.value = w.rowSpan || 2;
+    document.getElementById('f-col-val').textContent = col.value + ' / ' + cfg.gridColumns;
+    document.getElementById('f-row-val').textContent = row.value;
+    document.getElementById('f-header').checked = w.showHeader !== false;
+    document.getElementById('f-enabled').checked = w.enabled !== false;
+  }
+
+  function readFormValues() {
+    return {
+      title: document.getElementById('f-title').value.trim(),
+      path: document.getElementById('f-path').value.trim().replace(/^\/+/, ''),
+      colSpan: parseInt(document.getElementById('f-col').value, 10),
+      rowSpan: parseInt(document.getElementById('f-row').value, 10),
+      showHeader: document.getElementById('f-header').checked,
+      enabled: document.getElementById('f-enabled').checked
+    };
+  }
+
+  function saveWidget() {
+    var v = readFormValues();
+    if (!v.title) { toast('Title is required', 'error'); return; }
+    if (!v.path) { toast('Path is required', 'error'); return; }
+
+    if (editingId) {
+      var i = cfg.widgets.findIndex(function(x){return x.id === editingId;});
+      if (i >= 0) cfg.widgets[i] = Object.assign({}, cfg.widgets[i], v);
+    } else {
+      cfg.widgets.push(Object.assign({ id: uid(), order: cfg.widgets.length }, v));
+    }
+    save();
+    renderList();
+    closeModal('modal');
+    toast('Widget saved', 'success');
+  }
+
+  function confirmDelete(id) {
+    var w = cfg.widgets.find(function(x){return x.id === id;});
+    if (!w) return;
+    if (!window.confirm('Delete "' + w.title + '"? This cannot be undone.')) return;
+    cfg.widgets = cfg.widgets.filter(function(x){return x.id !== id;});
+    save();
+    renderList();
+    closeModal('modal');
+    toast('Widget deleted', 'success');
+  }
+
+  function updateUrlPreview() {
+    var path = document.getElementById('f-path').value.trim().replace(/^\/+/, '');
+    var preview = document.getElementById('f-url-preview');
+    preview.innerHTML =
+      '<span class="url-preview__base">' + escapeHtml(getBaseUrl()) + '/resources/images/</span>' +
+      '<span class="url-preview__path">' + escapeHtml(path || '(path)') + '</span>';
+  }
+
+  var previewDebounce = null;
+  function updatePreviewIframe() {
+    clearTimeout(previewDebounce);
+    previewDebounce = setTimeout(function(){
+      var path = document.getElementById('f-path').value.trim();
+      var iframe = document.getElementById('f-preview');
+      iframe.src = path ? buildWidgetUrl(path) : 'about:blank';
+    }, 400);
+  }
+
+  // --- Grid settings -------------------------------------------------------
+  function initGridSettings() {
+    var cols = document.getElementById('set-cols');
+    var row = document.getElementById('set-row');
+    var gap = document.getElementById('set-gap');
+
+    cols.value = cfg.gridColumns;
+    row.value = cfg.rowHeight;
+    gap.value = cfg.gap;
+    document.getElementById('set-cols-val').textContent = cfg.gridColumns;
+    document.getElementById('set-row-val').textContent = cfg.rowHeight + 'px';
+    document.getElementById('set-gap-val').textContent = cfg.gap + 'px';
+
+    cols.addEventListener('input', function(){
+      cfg.gridColumns = parseInt(cols.value, 10);
+      document.getElementById('set-cols-val').textContent = cfg.gridColumns;
+      // clamp form col span max too
+      document.getElementById('f-col').max = cfg.gridColumns;
+      save();
+    });
+    row.addEventListener('input', function(){
+      cfg.rowHeight = parseInt(row.value, 10);
+      document.getElementById('set-row-val').textContent = cfg.rowHeight + 'px';
+      save();
+    });
+    gap.addEventListener('input', function(){
+      cfg.gap = parseInt(gap.value, 10);
+      document.getElementById('set-gap-val').textContent = cfg.gap + 'px';
+      save();
+    });
+  }
+
+  function initBaseUrl() {
+    var input = document.getElementById('set-base');
+    input.value = cfg.baseUrl || '';
+    renderBasePreview();
+    input.addEventListener('input', function(){
+      cfg.baseUrl = input.value.trim();
+      save();
+      renderBasePreview();
+      updateUrlPreview();
+    });
+  }
+  function renderBasePreview() {
+    document.getElementById('base-preview').textContent = getBaseUrl() + '/resources/images/...';
+  }
+
+  // --- Import / export -----------------------------------------------------
+  function exportConfig() {
+    var blob = new Blob([JSON.stringify(cfg, null, 2)], { type:'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'collibra-dashboard-config.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    toast('Config exported', 'success');
+  }
+
+  function openImport() {
+    document.getElementById('import-json').value = '';
+    openModal('import-modal');
+  }
+
+  function applyImport() {
+    var text = document.getElementById('import-json').value.trim();
+    if (!text) { toast('Nothing to import', 'error'); return; }
+    try {
+      var parsed = JSON.parse(text);
+      if (!parsed || typeof parsed !== 'object') throw new Error('Invalid');
+      // Validate widgets shape lightly
+      var widgets = Array.isArray(parsed.widgets) ? parsed.widgets : [];
+      cfg = Object.assign({}, DEFAULT_CONFIG, parsed, {
+        widgets: widgets.map(function(w, i){
+          return {
+            id: w.id || uid(),
+            title: String(w.title || 'Widget ' + (i+1)),
+            path: String(w.path || ''),
+            colSpan: Math.max(1, Math.min(12, parseInt(w.colSpan, 10) || 6)),
+            rowSpan: Math.max(1, Math.min(6, parseInt(w.rowSpan, 10) || 2)),
+            showHeader: w.showHeader !== false,
+            enabled: w.enabled !== false,
+            order: typeof w.order === 'number' ? w.order : i
+          };
+        })
+      });
+      save();
+      renderList();
+      initGridSettings();
+      initBaseUrl();
+      applyTheme(cfg.theme || 'system');
+      closeModal('import-modal');
+      toast('Config imported', 'success');
+    } catch(e) {
+      toast('Invalid JSON', 'error');
+    }
+  }
+
+  function resetConfig() {
+    if (!window.confirm('Reset the entire configuration? This will remove every widget.')) return;
+    cfg = clone(DEFAULT_CONFIG);
+    save();
+    renderList();
+    initGridSettings();
+    initBaseUrl();
+    applyTheme(cfg.theme || 'system');
+    toast('Config reset', 'success');
+  }
+
+  // --- Modal helpers -------------------------------------------------------
+  function openModal(id) {
+    document.getElementById(id).classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('is-open');
+    document.body.style.overflow = '';
+  }
+
+  // --- Toast --------------------------------------------------------------
+  function toast(message, kind) {
+    var stack = document.getElementById('toasts');
+    var t = document.createElement('div');
+    t.className = 'toast' + (kind ? ' toast--' + kind : '');
+    t.textContent = message;
+    stack.appendChild(t);
+    setTimeout(function(){ t.remove(); }, 3600);
+  }
+
+  // --- Escape helpers ------------------------------------------------------
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function escapeAttr(s) { return escapeHtml(s); }
+
+  // --- Events --------------------------------------------------------------
+  function bind() {
+    document.getElementById('btn-add').addEventListener('click', openAdd);
+    document.getElementById('modal-close').addEventListener('click', function(){ closeModal('modal'); });
+    document.getElementById('modal-cancel').addEventListener('click', function(){ closeModal('modal'); });
+    document.getElementById('modal-save').addEventListener('click', saveWidget);
+    document.getElementById('modal-delete').addEventListener('click', function(){ if (editingId) confirmDelete(editingId); });
+    document.getElementById('modal').addEventListener('click', function(e){ if (e.target === this) closeModal('modal'); });
+
+    // Range mirrors
+    var colSlider = document.getElementById('f-col');
+    var rowSlider = document.getElementById('f-row');
+    colSlider.max = cfg.gridColumns;
+    colSlider.addEventListener('input', function(){ document.getElementById('f-col-val').textContent = colSlider.value + ' / ' + cfg.gridColumns; });
+    rowSlider.addEventListener('input', function(){ document.getElementById('f-row-val').textContent = rowSlider.value; });
+
+    // Path -> preview
+    document.getElementById('f-path').addEventListener('input', function(){
+      updateUrlPreview();
+      updatePreviewIframe();
+    });
+
+    // Export / import / reset
+    document.getElementById('btn-export').addEventListener('click', exportConfig);
+    document.getElementById('btn-import').addEventListener('click', openImport);
+    document.getElementById('btn-reset').addEventListener('click', resetConfig);
+    document.getElementById('import-close').addEventListener('click', function(){ closeModal('import-modal'); });
+    document.getElementById('import-cancel').addEventListener('click', function(){ closeModal('import-modal'); });
+    document.getElementById('import-apply').addEventListener('click', applyImport);
+    document.getElementById('import-modal').addEventListener('click', function(e){ if (e.target === this) closeModal('import-modal'); });
+
+    // Escape closes modals
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape') {
+        closeModal('modal');
+        closeModal('import-modal');
+      }
+    });
+  }
+
+  // --- Boot ----------------------------------------------------------------
+  document.addEventListener('DOMContentLoaded', function(){
+    initTheme();
+    renderList();
+    initGridSettings();
+    initBaseUrl();
+    bind();
+  });
+
+})();
+</script>
+</body>
+</html>

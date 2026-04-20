@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard · Collibra</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    // Apply theme immediately to avoid a flash of unstyled theme
+    (function(){
+      try {
+        var raw = localStorage.getItem('collibra-dashboard-config');
+        var cfg = raw ? JSON.parse(raw) : null;
+        var theme = cfg && cfg.theme ? cfg.theme : 'system';
+        if (theme === 'system') {
+          var prefers = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          theme = prefers ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch(e) { /* ignore */ }
+    })();
+  </script>
+</head>
+<body>
+  <div class="app">
+
+    <!-- Top bar -->
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand__mark" id="greeting">Good morning, <em>there</em>.</span>
+      </div>
+      <div class="topbar__actions">
+        <div class="theme-toggle" role="group" aria-label="Theme">
+          <button id="theme-light" aria-pressed="false" title="Light">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          </button>
+          <button id="theme-system" aria-pressed="false" title="System">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+          </button>
+          <button id="theme-dark" aria-pressed="false" title="Dark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+        </div>
+        <a href="dashboards-admin.html" class="btn btn--sm" title="Admin portal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span class="btn__label-hide-sm">Admin</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Widget grid -->
+    <main class="dash-grid" id="grid" aria-label="Widgets"></main>
+
+    <!-- Maximize overlay -->
+    <div class="maximize-overlay" id="maximize-overlay" role="dialog" aria-modal="true" aria-labelledby="max-title">
+      <div class="maximize-overlay__inner">
+        <div class="maximize-overlay__header">
+          <div class="widget__title" id="max-title">Widget</div>
+          <div class="widget__actions">
+            <button class="widget__action" id="max-reload" title="Reload">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            </button>
+            <button class="widget__action" id="max-open" title="Open in new tab">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </button>
+            <button class="widget__action" id="max-close" title="Close">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="maximize-overlay__body">
+          <iframe id="max-iframe" title="Maximized widget"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-stack" id="toasts" aria-live="polite"></div>
+  </div>
+
+<script>
+/* ============================================================
+   Dashboard script
+   ============================================================ */
+(function(){
+  'use strict';
+
+  // --- Config & storage -----------------------------------------------------
+  var STORAGE_KEY = 'collibra-dashboard-config';
+  var DEFAULT_CONFIG = {
+    version: 1,
+    theme: 'system',
+    baseUrl: '',
+    gridColumns: 12,
+    rowHeight: 180,
+    gap: 20,
+    widgets: []
+  };
+
+  function loadConfig() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return Object.assign({}, DEFAULT_CONFIG);
+      var parsed = JSON.parse(raw);
+      return Object.assign({}, DEFAULT_CONFIG, parsed, {
+        widgets: (parsed.widgets || []).slice().sort(function(a,b){return (a.order||0)-(b.order||0);})
+      });
+    } catch (e) {
+      return Object.assign({}, DEFAULT_CONFIG);
+    }
+  }
+
+  function saveConfig(cfg) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
+  }
+
+  // --- Base URL -------------------------------------------------------------
+  function getBaseUrl(cfg) {
+    if (cfg.baseUrl && cfg.baseUrl.trim()) return cfg.baseUrl.replace(/\/+$/, '');
+    return window.location.origin;
+  }
+
+  function buildWidgetUrl(cfg, path) {
+    var base = getBaseUrl(cfg);
+    var clean = String(path || '').replace(/^\/+/, '');
+    return base + '/resources/images/' + clean;
+  }
+
+  // --- Theme ----------------------------------------------------------------
+  function applyTheme(theme) {
+    var actual = theme;
+    if (theme === 'system') {
+      actual = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-theme', actual);
+    ['light','system','dark'].forEach(function(t){
+      var b = document.getElementById('theme-' + t);
+      if (b) b.setAttribute('aria-pressed', String(t === theme));
+    });
+  }
+
+  function initTheme(cfg) {
+    applyTheme(cfg.theme || 'system');
+    ['light','system','dark'].forEach(function(t){
+      var b = document.getElementById('theme-' + t);
+      if (!b) return;
+      b.addEventListener('click', function(){
+        cfg.theme = t;
+        saveConfig(cfg);
+        applyTheme(t);
+      });
+    });
+    // React to system changes while theme === system
+    try {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(){
+        if (cfg.theme === 'system') applyTheme('system');
+      });
+    } catch(e) { /* older browsers */ }
+  }
+
+  // --- Greeting / user ------------------------------------------------------
+  function greetingPrefix() {
+    var h = new Date().getHours();
+    if (h < 5) return 'Still up';
+    if (h < 12) return 'Good morning';
+    if (h < 18) return 'Good afternoon';
+    return 'Good evening';
+  }
+
+  function setGreeting(firstName) {
+    var g = document.getElementById('greeting');
+    var prefix = greetingPrefix();
+    if (firstName && firstName.trim()) {
+      g.innerHTML = prefix + ', <em>' + escapeHtml(firstName) + '</em>.';
+    } else {
+      g.innerHTML = prefix + ', <em>there</em>.';
+    }
+  }
+
+  function setSubheading(text) {
+    var el = document.getElementById('subheading');
+    if (el) el.textContent = text;
+  }
+
+  function setSessionMeta(text, state) {
+    var el = document.getElementById('meta-session');
+    if (el) el.textContent = text;
+    var dot = document.querySelector('.dash-meta__dot');
+    if (!dot) return;
+    dot.classList.remove('dash-meta__dot--unknown', 'dash-meta__dot--error');
+    if (state === 'unknown') dot.classList.add('dash-meta__dot--unknown');
+    else if (state === 'error') dot.classList.add('dash-meta__dot--error');
+  }
+
+  function fetchUser(cfg) {
+    var url = getBaseUrl(cfg) + '/rest/2.0/auth/sessions/current?include=user';
+    return fetch(url, {
+      credentials: 'include',
+      headers: { 'Accept': 'application/json' }
+    }).then(function(res){
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    });
+  }
+
+  // --- Clock ---------------------------------------------------------------
+  function startClock() {
+    var el = document.getElementById('meta-datetime');
+    if (!el) return;
+    function tick() {
+      var d = new Date();
+      var opts = { weekday:'long', month:'short', day:'numeric' };
+      var date = d.toLocaleDateString(undefined, opts);
+      var time = d.toLocaleTimeString(undefined, { hour:'numeric', minute:'2-digit' });
+      el.textContent = date + ' · ' + time;
+    }
+    tick();
+    setInterval(tick, 30000);
+  }
+
+  // --- Widgets / grid ------------------------------------------------------
+  function renderGrid(cfg) {
+    var grid = document.getElementById('grid');
+    grid.style.setProperty('--grid-columns', cfg.gridColumns);
+    grid.style.setProperty('--grid-gap', cfg.gap + 'px');
+    grid.style.setProperty('--row-height', cfg.rowHeight + 'px');
+
+    grid.innerHTML = '';
+    var visible = cfg.widgets.filter(function(w){ return w.enabled !== false; });
+
+    var countEl = document.getElementById('meta-widget-count');
+    if (visible.length === 0) {
+      if (countEl) countEl.textContent = 'No widgets configured';
+      grid.appendChild(renderEmpty());
+      return;
+    }
+    if (countEl) countEl.textContent = visible.length + (visible.length === 1 ? ' widget' : ' widgets');
+
+    visible.forEach(function(w, i){
+      grid.appendChild(renderWidget(cfg, w, i));
+    });
+  }
+
+  function renderEmpty() {
+    var wrap = document.createElement('div');
+    wrap.className = 'empty-state';
+    wrap.innerHTML =
+      '<div class="empty-state__mark">&#8205;—</div>' +
+      '<h2 class="empty-state__title">Nothing pinned yet.</h2>' +
+      '<p class="empty-state__text">Open the admin portal to add widgets. Each widget can point to any custom HTML file hosted in your Collibra <code>/resources/images/</code> folder.</p>' +
+      '<a href="dashboards-admin.html" class="btn btn--accent">Open admin portal</a>';
+    return wrap;
+  }
+
+  function renderWidget(cfg, w, i) {
+    var el = document.createElement('article');
+    el.className = 'widget' + (w.showHeader === false ? ' widget--no-header' : '');
+    el.style.gridColumn = 'span ' + Math.max(1, Math.min(cfg.gridColumns, w.colSpan || 6));
+    el.style.gridRow = 'span ' + Math.max(1, Math.min(8, w.rowSpan || 2));
+    el.style.animationDelay = Math.min(i * 40, 300) + 'ms';
+    el.setAttribute('data-widget-id', w.id);
+
+    var src = buildWidgetUrl(cfg, w.path);
+
+    var header =
+      '<div class="widget__header">' +
+        '<div class="widget__title" title="' + escapeAttr(w.title) + '">' + escapeHtml(w.title) + '</div>' +
+        '<div class="widget__actions">' +
+          '<button class="widget__action" data-action="reload" title="Reload"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></button>' +
+          '<button class="widget__action" data-action="maximize" title="Maximize"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button>' +
+          '<button class="widget__action" data-action="open" title="Open in new tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>' +
+        '</div>' +
+      '</div>';
+
+    var body =
+      '<div class="widget__body">' +
+        '<iframe class="widget__iframe" src="' + escapeAttr(src) + '" title="' + escapeAttr(w.title) + '" loading="lazy" referrerpolicy="same-origin"></iframe>' +
+        '<div class="widget__error"><strong>Couldn\'t load widget.</strong><span>The URL returned an error or was blocked.</span><code>' + escapeHtml(src) + '</code></div>' +
+      '</div>';
+
+    el.innerHTML = header + body;
+
+    // Wire actions
+    el.addEventListener('click', function(ev){
+      var btn = ev.target.closest('[data-action]');
+      if (!btn) return;
+      var action = btn.getAttribute('data-action');
+      var iframe = el.querySelector('.widget__iframe');
+      if (action === 'reload') {
+        iframe.src = iframe.src;
+      } else if (action === 'open') {
+        window.open(src, '_blank', 'noopener');
+      } else if (action === 'maximize') {
+        openMaximize(w.title, src);
+      }
+    });
+
+    // Detect iframe load errors (best-effort: onerror + onload timeout check)
+    var iframe = el.querySelector('.widget__iframe');
+    var errEl = el.querySelector('.widget__error');
+    iframe.addEventListener('error', function(){
+      errEl.classList.add('is-visible');
+      iframe.style.display = 'none';
+    });
+
+    return el;
+  }
+
+  // --- Maximize overlay ----------------------------------------------------
+  function openMaximize(title, src) {
+    var overlay = document.getElementById('maximize-overlay');
+    document.getElementById('max-title').textContent = title;
+    document.getElementById('max-iframe').src = src;
+    overlay.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMaximize() {
+    var overlay = document.getElementById('maximize-overlay');
+    overlay.classList.remove('is-open');
+    document.getElementById('max-iframe').src = 'about:blank';
+    document.body.style.overflow = '';
+  }
+  function initMaximize() {
+    document.getElementById('max-close').addEventListener('click', closeMaximize);
+    document.getElementById('maximize-overlay').addEventListener('click', function(e){
+      if (e.target === this) closeMaximize();
+    });
+    document.getElementById('max-reload').addEventListener('click', function(){
+      var f = document.getElementById('max-iframe');
+      f.src = f.src;
+    });
+    document.getElementById('max-open').addEventListener('click', function(){
+      var f = document.getElementById('max-iframe');
+      if (f.src && f.src !== 'about:blank') window.open(f.src, '_blank', 'noopener');
+    });
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape') closeMaximize();
+    });
+  }
+
+  // --- Toasts --------------------------------------------------------------
+  function toast(message, kind) {
+    var stack = document.getElementById('toasts');
+    var t = document.createElement('div');
+    t.className = 'toast' + (kind ? ' toast--' + kind : '');
+    t.textContent = message;
+    stack.appendChild(t);
+    setTimeout(function(){ t.remove(); }, 3600);
+  }
+
+  // --- Helpers -------------------------------------------------------------
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function escapeAttr(s) { return escapeHtml(s); }
+
+  // --- Boot ----------------------------------------------------------------
+  document.addEventListener('DOMContentLoaded', function(){
+    var cfg = loadConfig();
+    initTheme(cfg);
+    initMaximize();
+    renderGrid(cfg);
+    startClock();
+
+    // User greeting
+    setGreeting(null);
+    setSubheading('Fetching your profile from Collibra…');
+
+    fetchUser(cfg).then(function(data){
+      var u = data && data.user ? data.user : null;
+      var first = u ? (u.firstName || u.userName) : null;
+      setGreeting(first);
+      var parts = [];
+      if (u && u.licenseType) parts.push(u.licenseType.charAt(0) + u.licenseType.slice(1).toLowerCase());
+      if (u && u.userName) parts.push('@' + u.userName);
+      setSessionMeta(parts.length ? parts.join(' · ') : 'Signed in', 'ok');
+      var widgetCount = cfg.widgets.filter(function(w){return w.enabled !== false;}).length;
+      if (widgetCount === 0) {
+        setSubheading('No widgets have been added yet. Head to the admin portal to pin the HTML files you care about.');
+      } else {
+        setSubheading('Here\'s a snapshot of what matters to you in Collibra today.');
+      }
+    }).catch(function(err){
+      setGreeting(null);
+      setSessionMeta('Session unknown', 'error');
+      setSubheading('Could not reach Collibra to fetch your profile. Widgets will still load if the session is valid.');
+      console.warn('[dashboard] fetch user failed:', err);
+    });
+  });
+
+})();
+</script>
+</body>
+</html>
