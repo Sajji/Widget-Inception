@@ -26,7 +26,12 @@ Both pages share the same stylesheet:
 - Theme modes:
   - Light
   - Dark
-  - System
+  - System (follows OS preference)
+  - One Dark Pro
+  - Dracula
+  - Monokai
+  - Solarized
+  - Nord
 - Greeting in top bar, with best-effort user profile fetch from Collibra
 - Local-only persistence (no server component required)
 - Config import/export for portability

@@ -86,6 +86,121 @@
   --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
+/* One Dark Pro — inspired by VS Code's most-installed theme */
+[data-theme="one-dark"] {
+  --bg:              #21252B;
+  --bg-grain:        #282C34;
+  --surface:         #282C34;
+  --surface-alt:     #2C313A;
+  --surface-hover:   #333842;
+  --ink:             #ABB2BF;
+  --ink-muted:       #7F848E;
+  --ink-subtle:      #4B5263;
+  --border:          #3E4451;
+  --border-strong:   #4B5263;
+  --accent:          #61AFEF;
+  --accent-soft:     #1A2E42;
+  --accent-hover:    #4CA1E3;
+  --danger:          #E06C75;
+  --danger-soft:     #2A1A1C;
+  --success:         #98C379;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-lg: 0 16px 40px rgba(0,0,0,0.5), 0 4px 12px rgba(0,0,0,0.4);
+}
+
+/* Dracula — iconic purple/pink dark theme */
+[data-theme="dracula"] {
+  --bg:              #191A21;
+  --bg-grain:        #1E1F2A;
+  --surface:         #282A36;
+  --surface-alt:     #2E3048;
+  --surface-hover:   #373A50;
+  --ink:             #F8F8F2;
+  --ink-muted:       #BDBDBD;
+  --ink-subtle:      #6272A4;
+  --border:          #44475A;
+  --border-strong:   #6272A4;
+  --accent:          #FF79C6;
+  --accent-soft:     #3A1A2E;
+  --accent-hover:    #FF92D0;
+  --danger:          #FF5555;
+  --danger-soft:     #3A1515;
+  --success:         #50FA7B;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-lg: 0 16px 40px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.5);
+}
+
+/* Monokai — classic dark theme with vivid orange/yellow */
+[data-theme="monokai"] {
+  --bg:              #1E1F1C;
+  --bg-grain:        #272822;
+  --surface:         #272822;
+  --surface-alt:     #2D2E27;
+  --surface-hover:   #383930;
+  --ink:             #F8F8F2;
+  --ink-muted:       #CFCFC2;
+  --ink-subtle:      #75715E;
+  --border:          #3D3D35;
+  --border-strong:   #49483E;
+  --accent:          #FD971F;
+  --accent-soft:     #2A1D0D;
+  --accent-hover:    #E8870A;
+  --danger:          #F92672;
+  --danger-soft:     #2A0F1A;
+  --success:         #A6E22E;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-lg: 0 16px 40px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.5);
+}
+
+/* Solarized — warm beige light theme with teal accents */
+[data-theme="solarized"] {
+  --bg:              #FDF6E3;
+  --bg-grain:        #F5EFD7;
+  --surface:         #EEE8D5;
+  --surface-alt:     #E8E2CC;
+  --surface-hover:   #DDD8C4;
+  --ink:             #586E75;
+  --ink-muted:       #839496;
+  --ink-subtle:      #93A1A1;
+  --border:          #D6CFC0;
+  --border-strong:   #C9C2B0;
+  --accent:          #268BD2;
+  --accent-soft:     #D4E8F8;
+  --accent-hover:    #1A6FA8;
+  --danger:          #DC322F;
+  --danger-soft:     #FADAD9;
+  --success:         #859900;
+  --shadow-sm: 0 1px 2px rgba(101,123,131,0.06);
+  --shadow-md: 0 4px 12px rgba(101,123,131,0.10), 0 1px 2px rgba(101,123,131,0.06);
+  --shadow-lg: 0 16px 40px rgba(101,123,131,0.14), 0 4px 12px rgba(101,123,131,0.10);
+}
+
+/* Nord — cool arctic blue-grey dark theme */
+[data-theme="nord"] {
+  --bg:              #242933;
+  --bg-grain:        #2E3440;
+  --surface:         #2E3440;
+  --surface-alt:     #3B4252;
+  --surface-hover:   #434C5E;
+  --ink:             #ECEFF4;
+  --ink-muted:       #D8DEE9;
+  --ink-subtle:      #4C566A;
+  --border:          #3B4252;
+  --border-strong:   #434C5E;
+  --accent:          #88C0D0;
+  --accent-soft:     #1E2C32;
+  --accent-hover:    #5E9EAD;
+  --danger:          #BF616A;
+  --danger-soft:     #251C1E;
+  --success:         #A3BE8C;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-lg: 0 16px 40px rgba(0,0,0,0.5), 0 4px 12px rgba(0,0,0,0.4);
+}
+
 /* ---------- Reset ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 * { margin: 0; padding: 0; }
@@ -348,31 +463,113 @@ input[type="range"]::-moz-range-thumb {
 .checkbox input:checked { background: var(--accent); border-color: var(--accent); }
 .checkbox input:checked::after { content: ""; width: 8px; height: 5px; border-left: 2px solid white; border-bottom: 2px solid white; transform: rotate(-45deg) translate(1px, -1px); }
 
-/* ---------- Theme toggle ---------- */
-.theme-toggle {
+/* ---------- Theme picker (custom dropdown) ---------- */
+.theme-picker {
+  position: relative;
+  display: inline-flex;
+}
+
+/* Trigger button — styled identically to .btn.btn--sm */
+.theme-picker__btn {
   display: inline-flex;
   align-items: center;
-  padding: 2px;
-  background: var(--surface-alt);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  height: 30px;
-}
-.theme-toggle button {
-  width: 26px;
-  height: 26px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  color: var(--ink-subtle);
-  transition: all var(--dur-fast) var(--ease);
-}
-.theme-toggle button[aria-pressed="true"] {
-  background: var(--surface);
+  gap: var(--s-2);
+  height: 28px;
+  padding: 0 var(--s-3);
+  border-radius: var(--r-md);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
   color: var(--ink);
-  box-shadow: var(--shadow-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease),
+              box-shadow var(--dur-fast) var(--ease);
 }
-.theme-toggle svg { width: 14px; height: 14px; stroke-width: 1.75; }
+.theme-picker__btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+.theme-picker__btn[aria-expanded="true"] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.theme-picker__btn svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 1.75;
+  flex-shrink: 0;
+}
+.theme-picker__chevron {
+  color: var(--ink-subtle);
+  transition: transform var(--dur-fast) var(--ease);
+}
+.theme-picker__btn[aria-expanded="true"] .theme-picker__chevron {
+  transform: rotate(180deg);
+}
+
+/* Floating menu panel — fully CSS-variable-driven */
+.theme-picker__menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 176px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--s-1);
+  list-style: none;
+  z-index: 200;
+}
+.theme-picker__menu.is-open { display: block; }
+
+.theme-picker__menu li > button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  width: 100%;
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-md);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ink);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.theme-picker__menu li > button:hover {
+  background: var(--surface-hover);
+}
+.theme-picker__menu li > button[aria-selected="true"] {
+  color: var(--accent);
+  font-weight: 500;
+}
+/* Checkmark for selected item */
+.theme-picker__menu li > button[aria-selected="true"]::after {
+  content: "";
+  display: block;
+  width: 5px;
+  height: 9px;
+  border-right: 2px solid var(--accent);
+  border-bottom: 2px solid var(--accent);
+  transform: rotate(45deg);
+  flex-shrink: 0;
+  margin-top: -2px;
+}
+
+/* Separator line between base themes and VS Code themes */
+.theme-picker__sep {
+  height: 1px;
+  background: var(--border);
+  margin: var(--s-1) var(--s-3);
+}
 
 /* ============================================================
    DASHBOARD

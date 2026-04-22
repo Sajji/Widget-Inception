@@ -34,16 +34,23 @@
         <span class="brand__eyebrow">Config</span>
       </div>
       <div class="topbar__actions">
-        <div class="theme-toggle" role="group" aria-label="Theme">
-          <button id="theme-light" aria-pressed="false" title="Light">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <div class="theme-picker" id="theme-picker">
+          <button class="theme-picker__btn" id="theme-picker-btn" aria-haspopup="listbox" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/><circle cx="7.5" cy="10.5" r=".75" fill="currentColor" stroke="none"/><circle cx="12" cy="7.5" r=".75" fill="currentColor" stroke="none"/><circle cx="16.5" cy="10.5" r=".75" fill="currentColor" stroke="none"/></svg>
+            <span id="theme-picker-label">System</span>
+            <svg class="theme-picker__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
-          <button id="theme-system" aria-pressed="false" title="System">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
-          </button>
-          <button id="theme-dark" aria-pressed="false" title="Dark">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-          </button>
+          <ul class="theme-picker__menu" id="theme-picker-menu" role="listbox" aria-label="Theme">
+            <li><button role="option" data-value="system">System</button></li>
+            <li><button role="option" data-value="light">Light</button></li>
+            <li><button role="option" data-value="dark">Dark</button></li>
+            <li class="theme-picker__sep" role="separator" aria-hidden="true"></li>
+            <li><button role="option" data-value="one-dark">One Dark Pro</button></li>
+            <li><button role="option" data-value="dracula">Dracula</button></li>
+            <li><button role="option" data-value="monokai">Monokai</button></li>
+            <li><button role="option" data-value="solarized">Solarized</button></li>
+            <li><button role="option" data-value="nord">Nord</button></li>
+          </ul>
         </div>
         <a href="dashboards.html" class="btn btn--sm">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
@@ -297,28 +304,59 @@
   }
 
   // --- Theme ---------------------------------------------------------------
+  var THEME_LABELS = {
+    'system': 'System', 'light': 'Light', 'dark': 'Dark',
+    'one-dark': 'One Dark Pro', 'dracula': 'Dracula',
+    'monokai': 'Monokai', 'solarized': 'Solarized', 'nord': 'Nord'
+  };
+
   function applyTheme(theme) {
     var actual = theme;
     if (theme === 'system') {
       actual = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
     document.documentElement.setAttribute('data-theme', actual);
-    ['light','system','dark'].forEach(function(t){
-      var b = document.getElementById('theme-' + t);
-      if (b) b.setAttribute('aria-pressed', String(t === theme));
-    });
+    var lbl = document.getElementById('theme-picker-label');
+    if (lbl) lbl.textContent = THEME_LABELS[theme] || theme;
+    var menu = document.getElementById('theme-picker-menu');
+    if (menu) {
+      menu.querySelectorAll('[role="option"]').forEach(function(b){
+        b.setAttribute('aria-selected', String(b.getAttribute('data-value') === theme));
+      });
+    }
   }
   function initTheme() {
     applyTheme(cfg.theme || 'system');
-    ['light','system','dark'].forEach(function(t){
-      var b = document.getElementById('theme-' + t);
-      if (!b) return;
-      b.addEventListener('click', function(){
-        cfg.theme = t;
+    var btn  = document.getElementById('theme-picker-btn');
+    var menu = document.getElementById('theme-picker-menu');
+    if (!btn || !menu) return;
+
+    function closeMenu() {
+      menu.classList.remove('is-open');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var open = menu.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', String(open));
+    });
+
+    menu.querySelectorAll('[role="option"]').forEach(function(opt){
+      opt.addEventListener('click', function(){
+        var val = opt.getAttribute('data-value');
+        cfg.theme = val;
         save();
-        applyTheme(t);
+        applyTheme(val);
+        closeMenu();
       });
     });
+
+    document.addEventListener('click', closeMenu);
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape') closeMenu();
+    });
+
     try {
       window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(){
         if (cfg.theme === 'system') applyTheme('system');
